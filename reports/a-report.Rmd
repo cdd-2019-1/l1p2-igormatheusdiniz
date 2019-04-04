@@ -1,8 +1,13 @@
 ---
-title: "REPLACE ME"
-output:
-    html_document:
+title: "Analise da atividade dos parlamentares no Twitter no ano de 2019"
+output: 
+  html_notebook:
+    toc: yes
+    toc_float: yes
+  html_document:
     df_print: paged
+    toc: yes
+    toc_float: yes
 theme: sandstone
 ---
 
@@ -14,4 +19,48 @@ theme_set(theme_bw())
 
 ```{r read}
 atividade = read_projectdata()
+glimpse(atividade)
 ```
+
+### Levando em consideração os parlamentares e seus respectivos alcances em redes sociais, Quais são os partids que possuem o maior poder de influência no twitter?
+
+```{r}
+atividade %>%
+  ggplot(aes(x=partido, y=engaj_mediano)) +
+  geom_line(color="red")+
+  coord_flip()
+
+```
+Percebe-se que o partido que possui maior poder de influência nas redes sociais, entendendo-se que o poder de influência não 
+
+```{r}
+##como selecionar partido, nome e maisAtivos
+sumarios = atividade %>%
+    ##select(nome_eleitoral,partido,n_proprio,n_retweet)%>%
+    group_by(nome_eleitoral)%>%
+    na.omit(atividade)%>%
+    summarise(maisAtivos = n_proprio+n_retweet)%>%
+    arrange(desc(maisAtivos))
+    
+
+glimpse(sumarios)
+```
+
+```{r}
+sumarios %>%
+  head(sumarios, n=10L)%>%
+  #como ordenar do maior para o menor
+  #como selecionar apenas 20 primeiros nomes_eleitorais
+  ggplot(aes(x=nome_eleitoral,y=maisAtivos))+
+  geom_col(color = "blue", fill="orange")+
+  coord_flip()
+  
+  
+
+```
+
+
+
+
+
+
