@@ -1,14 +1,15 @@
 ---
 title: "Analise da atividade dos parlamentares no Twitter no ano de 2019"
-output: 
-  html_notebook:
-    toc: yes
-    toc_float: yes
+author: "Igor Matheus Castor Diniz Pinheiro"
+theme: sandstone
+output:
   html_document:
     df_print: paged
     toc: yes
     toc_float: yes
-theme: sandstone
+  html_notebook:
+    toc: yes
+    toc_float: yes
 ---
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -22,7 +23,7 @@ atividade = read_projectdata()
 glimpse(atividade)
 ```
 
-### Levando em consideração os parlamentares e seus respectivos alcances em redes sociais, Quais são os partidos que possuem o maior poder de influência no twitter?
+##Levando em consideração os parlamentares e seus respectivos alcances em redes sociais, Quais são os partidos que possuem o maior poder de influência no twitter?
 
 ```{r}
 engaj_mediano_partido = 
@@ -34,11 +35,14 @@ engaj_mediano_partido =
 
 engaj_mediano_partido %>%
   group_by(partido)%>%
-  ggplot(aes(x=partido, y= engaj_med_part,fill = partido) ) +
+  ggplot(aes(x= reorder(partido, engaj_med_part), y= engaj_med_part,fill = partido) ) +
   geom_col(show.legend = FALSE)+
+  labs(y='engajamento_mediano_do_partido', x= 'partidos')+
   coord_flip()
 
 ```
+
+
 Considerando que o partido que possui maior poder de influência nas redes sociais é aquele que possui maior nível de engajamento, e evitando os pontos fora da curva, o que responde nossa pergunta é a mediana dos dos engajamentos_medianos de cada partido. Dessa forma poodemos perceber no gráfico que o PSOL e PSL estão bem a frente. O que difere do pensamento crítico do autor da questão, o qual imaginava PSOL, PT e PSDB. Importante ressaltar que o engajamento_mediano de cada partido é a mediana do engajamento de todos os seus parlamentares, que por sua vez são likes e retweets em seu conteúdo, ou seja aquele partido que possui maior engajamento mediano, é o partido que possui um número considerável de ações (likes/retweets emseu material).
 
 ```{r}
@@ -47,30 +51,79 @@ sumarios = atividade %>%
     ##select(nome_eleitoral,partido,n_proprio,n_retweet)%>%
     group_by(nome_eleitoral)%>%
     na.omit(atividade)%>%
-    summarise(partido, maisAtivos = n_proprio+n_retweet)%>%
+    summarise(partido, casa,maisAtivos = n_proprio+n_retweet)%>%
     arrange(desc(maisAtivos))
     
 
 glimpse(sumarios)
 ```
 
-### Quais são os partidos que possuem os parlamentares mais ativos?
+##Quais são os partidos que possuem os parlamentares mais ativos?
 
 ```{r}
 sumarios %>%
   head(sumarios, n=15L)%>%
-  ggplot(aes(x=nome_eleitoral,y=partido, size=maisAtivos,color =partido))+
+  ggplot(aes(x=nome_eleitoral,y=partido, size=maisAtivos,color =partido, shape=casa))+
   geom_point()+
   coord_flip()
+```
+
+
+Considerando que um parlamentar ativo é aquele que possui twwets ou que retweeta algum conteúdo,  pegando os 15 que possuem o maior índice de atividade temos o resultado exibido no gráfico acima. O que também cofronta com o resultado esperado pelo pesquisador, que esperava que fosse algum parlamentar do PSL ou PT.
+
+##Quantos parlamentares por partido temos? Quantos do senado e quantos da câmara? O número de parlamentares por partido reflete quais são os partidos com maior poder de influência, como vimos na primeira questão ?
+
+###Parlamentares por partido
+
+```{r}
+Count = atividade %>% 
+  group_by(partido)%>%
+  count() %>% 
+  arrange(n)
+
+glimpse(Count)
+
+Count %>% 
+  ggplot(aes(x = reorder(partido,n), y=n, fill=partido)) + 
+  geom_col(show.legend = FALSE)+
+  coord_flip()+
+  labs(y='numero_de_parlamentares')
   
-  
+```
+
+###Parlamentares senado x Parlamentares Câmara. 
+
+```{r}
+atividade %>% 
+  ggplot(aes(x= casa, fill=casa))+
+  geom_bar(show.legend = FALSE)+
+  labs(x='casa', y='Quantidade')
+```
+
+
+É possível perceber que temos muito mais parlamentares da câmara do que parlamentares do Senado. MAS... 
+
+## SE considerarmos a atividade mediana, quem são os mais ativos, câmara ou senado?
+```{r}
+atividade_mediana_casa = 
+  atividade %>%
+  na.omit(engaj_mediano) %>%
+  group_by(casa) %>%
+  filter(partido != 'S/Partido') %>%
+  summarise(ativ_med_casa = median(n_proprio+n_retweet))
+
+atividade_mediana_casa %>%
+  ggplot(aes(x= casa, y= ativ_med_casa, fill = casa) ) +
+  geom_col(show.legend = FALSE)
 
 ```
-COnsiderando que um parlamentar ativo é aquele que possui twwets ou que retweeta algum 
 
+Portanto, mesmo que o núemro de parlamentares na câmara seja maior, os senadores são os mais ativos na rede social!!
 
+##O número de parlamentares tem impacto no poder de influência do partido?
 
-###Quantos parlamentares por partido temos? Quantos do senado e quantos da câmara? O número de parlamentares por partido reflete quais são os partidos com maior poder de influência, como vimos na primeira questão ?
+De acordo com os gráficos obtidos na figura 1 e na figura 3, podemos confrotar o fato de que o PT tem o maior número de parlamentares com twitter, entretanto a quantidade não teve um impacto muito grande no nível de influência e poder de engajamento na rede social. O cenário inverso pode ser notado com o partido do PSOL que não possui muitos parlamentares no twitter entretanto está em primeiro lugar em nível de engajamento.
+
 
 
 
