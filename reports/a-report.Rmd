@@ -54,7 +54,7 @@ sumarios = atividade %>%
 glimpse(sumarios)
 ```
 
-### Quais são os partidos que possuem os parlamentares mais ativos em 2019?
+### Quais são os partidos que possuem os parlamentares mais ativos?
 
 ```{r}
 sumarios %>%
@@ -66,8 +66,11 @@ sumarios %>%
   
 
 ```
+COnsiderando que um parlamentar ativo é aquele que possui twwets ou que retweeta algum 
 
 
+
+###Quantos parlamentares por partido temos? Quantos do senado e quantos da câmara? O número de parlamentares por partido reflete quais são os partidos com maior poder de influência, como vimos na primeira questão ?
 
 
 
