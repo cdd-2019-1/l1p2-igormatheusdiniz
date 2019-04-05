@@ -22,16 +22,24 @@ atividade = read_projectdata()
 glimpse(atividade)
 ```
 
-### Levando em consideração os parlamentares e seus respectivos alcances em redes sociais, Quais são os partids que possuem o maior poder de influência no twitter?
+### Levando em consideração os parlamentares e seus respectivos alcances em redes sociais, Quais são os partidos que possuem o maior poder de influência no twitter?
 
 ```{r}
-atividade %>%
-  ggplot(aes(x=partido, y=engaj_mediano)) +
-  geom_line(color="red")+
+engaj_mediano_partido = 
+  atividade %>%
+  na.omit(engaj_mediano) %>%
+  group_by(partido) %>%
+  filter(partido != 'S/Partido') %>%
+  summarise(engaj_med_part = median(engaj_mediano))
+
+engaj_mediano_partido %>%
+  group_by(partido)%>%
+  ggplot(aes(x=partido, y= engaj_med_part,fill = partido) ) +
+  geom_col(show.legend = FALSE)+
   coord_flip()
 
 ```
-Percebe-se que o partido que possui maior poder de influência nas redes sociais, entendendo-se que o poder de influência não 
+Considerando que o partido que possui maior poder de influência nas redes sociais é aquele que possui maior nível de engajamento, e evitando os pontos fora da curva, o que responde nossa pergunta é a mediana dos dos engajamentos_medianos de cada partido. Dessa forma poodemos perceber no gráfico que o PSOL e PSL estão bem a frente. O que difere do pensamento crítico do autor da questão, o qual imaginava PSOL, PT e PSDB. Importante ressaltar que o engajamento_mediano de cada partido é a mediana do engajamento de todos os seus parlamentares, que por sua vez são likes e retweets em seu conteúdo, ou seja aquele partido que possui maior engajamento mediano, é o partido que possui um número considerável de ações (likes/retweets emseu material).
 
 ```{r}
 ##como selecionar partido, nome e maisAtivos
@@ -39,20 +47,20 @@ sumarios = atividade %>%
     ##select(nome_eleitoral,partido,n_proprio,n_retweet)%>%
     group_by(nome_eleitoral)%>%
     na.omit(atividade)%>%
-    summarise(maisAtivos = n_proprio+n_retweet)%>%
+    summarise(partido, maisAtivos = n_proprio+n_retweet)%>%
     arrange(desc(maisAtivos))
     
 
 glimpse(sumarios)
 ```
 
+### Quais são os partidos que possuem os parlamentares mais ativos em 2019?
+
 ```{r}
 sumarios %>%
-  head(sumarios, n=10L)%>%
-  #como ordenar do maior para o menor
-  #como selecionar apenas 20 primeiros nomes_eleitorais
-  ggplot(aes(x=nome_eleitoral,y=maisAtivos))+
-  geom_col(color = "blue", fill="orange")+
+  head(sumarios, n=15L)%>%
+  ggplot(aes(x=nome_eleitoral,y=partido, size=maisAtivos,color =partido))+
+  geom_point()+
   coord_flip()
   
   
